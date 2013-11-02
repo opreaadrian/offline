@@ -1,5 +1,11 @@
 (function() {
-  var Offline, checkXHR, defaultOptions, extendNative, grab, handlers, init;
+  var Offline, checkXHR, defaultOptions, _typeOf, extendNative, grab, handlers, init;
+
+  // Get the actual Class of the object
+  _typeOf = function(obj, type) {
+    var _getClass = Object.prototype.toString;
+   return _getClass.call(obj).replace(/[\[\]]/g, '').split(' ')[1] == type;
+  }
 
   extendNative = function(to, from) {
     var e, key, val, _results;
@@ -7,7 +13,7 @@
     for (key in from.prototype) {
       try {
         val = from.prototype[key];
-        if ((to[key] == null) && typeof val !== 'function') {
+        if ((to[key] == null) && _typeOf(val, 'Function')) {
           _results.push(to[key] = val);
         } else {
           _results.push(void 0);
@@ -50,30 +56,30 @@
     for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
       part = _ref[i];
       cur = cur[part];
-      if (typeof cur !== 'object') {
+      if (!_typeOf(cur, 'Object')) {
         break;
       }
     }
     return cur;
   };
 
+
   Offline.getOption = function(key) {
     var val, _ref;
     val = (_ref = grab(Offline.options, key)) != null ? _ref : grab(defaultOptions, key);
-    if (typeof val === 'function') {
+    if (_typeOf(val, 'Function')) {
       return val();
     } else {
       return val;
     }
   };
 
-  if (typeof document.addEventListener === "function") {
+  // One check for addEventListener
+  if (_typeOf(document.addEventListener, 'Function')) {
     document.addEventListener('online', function() {
       return setTimeout(Offline.confirmUp, 100);
     }, false);
-  }
 
-  if (typeof document.addEventListener === "function") {
     document.addEventListener('offline', function() {
       return Offline.confirmDown();
     }, false);
@@ -175,7 +181,7 @@
         } else if (xhr.readyState === 0) {
           onDown();
         }
-        return typeof _onreadystatechange === "function" ? _onreadystatechange.apply(null, arguments) : void 0;
+        return _typeOf(_onreadystatechange, 'Function') ? _onreadystatechange.apply(null, arguments) : void 0;
       };
     }
   };
